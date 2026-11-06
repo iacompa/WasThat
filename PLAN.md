@@ -189,18 +189,30 @@ WasThat/
 ---
 
 ## 9. Milestones
-- **M0, Spike (verify unknowns, below)** plus the project skeleton, git init, first push
+- **M0, Spike + skeleton:** ✅ done (2026-11-06), except the mute ear-check and the DB schema (see §10)
 - **M1, Recorder:** agent, SQLite store, live log + CoreAudio + power/USB sources, correlator, and a plain debug list
 - **M2, Comic UI:** design system, menu bar panel, full window, rarity, scan animation, hotkey
 - **M3, Actions:** settings deep links, timed audio mutes, Replay, known-sound recipes, Full Disk Access "Still up"
 - **M4, Polish:** onboarding loadout, settings (incl. Scan-only), About/GitHub, light theme, accessibility
 - **M5, Ship:** signing, notarization, DMG, Sparkle, CI, website link
 
-## 10. Unknowns to settle in M0
-1. The exact *positive* log line when a notification sound **does** play (only `Not playing sound…` was seen, because Focus was on), and which process outputs that audio.
-2. Whether a tap with `.muted` silences output on its own, or needs a running aggregate device/IOProc. Also whether macOS 27 shows a recording indicator while a mute is held.
-3. Whether the `?id=<bundleID>` Notifications deep link still lands on the per-app page on macOS 14.2 → 27.
-4. `OSLogStore.local()` in-process vs spawning `/usr/bin/log`: permissions and CPU cost.
-5. The schema of the usernoted DB on macOS 14 → 27 (for the Full Disk Access unlock).
-6. Hardened-runtime entitlements needed for process taps.
-7. How long the unified log keeps `usernoted` lines (retro-scan depth in Scan-only mode).
+## 10. M0 findings (macOS 27.0.1, 2026-11-06)
+
+Spike tools: `spikes/audioprobe.swift`, `spikes/oslogstore.swift`, and the guided app `spikes/SpikeApp`. Build it with `spikes/SpikeApp/build.sh`. It runs unattended with `--auto notif|mute` and appends to `~/Library/Application Support/WasThat/spike-results.jsonl`.
+
+| # | Question | Status | Finding |
+|---|---|---|---|
+| 1 | Log lines for notification sound | ✅ chain known, positive line still unseen | The decision chain is all in the log: `Presentation reply <bundle> [opts]` (frontmost app only) → `Presenting <… app:"X"> as banner (["sound", …])` → `Resolved event behavior … interruptionSuppression: none / silence / delay delivery; resolutionReason: disabled / mode configuration / display shared` → `X muted by DND suppression` or `muted by display state (displayShared)` → `Not playing sound for <app:"X">: … isMuted: true`. Every test was suppressed (Focus, then screen sharing), so the "played" case is inferred: a `Presenting` with `"sound"` and no `Not playing sound`, confirmed by the CoreAudio watcher seeing output. |
+| 2 | Does a `.muted` tap silence an app? | ⚠️ partly | All tap, aggregate and IOProc calls return `noErr`. With **System Audio Recording denied**, the tap is inert: it captures peak 0.0, mutes nothing and shows no indicator. **It fails silently.** Still to do: switch the permission on for WasThat Spike, run `--auto mute` (expect `tapCapturedAudio: true`), then a 10-second ear check of phase B (tap only) vs C (tap + device) and whether an indicator appears. |
+| 3 | Per-app Notifications deep link | ✅ | `x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=<bundleID>` opens that app's own page. The legacy `com.apple.preference.notifications?id=` also works. Recheck on macOS 14/15. |
+| 4 | OSLogStore vs `/usr/bin/log` | ✅ | Both work for an admin user, including Developer ID with hardened runtime. `log show` takes 4–7 s per 10–60 min query; OSLogStore takes 12–27 s. `log stream` costs ~0.03 s CPU per 20 s. **Use subprocesses, and stream with `--level debug`**, since info/debug lines aren't kept on disk. |
+| 5 | usernoted DB schema | ⏳ deferred to M3 | Needs Full Disk Access, which wasn't granted in the spike. |
+| 6 | Hardened-runtime entitlements | ✅ | Don't use `osascript` (needs `automation.apple-events`); post with `UNUserNotificationCenter`. An aggregate device with input triggers a **Microphone** TCC check that needs `com.apple.security.device.audio-input`. Avoid it: target tap-only mute plus `NSAudioCaptureUsageDescription`. |
+| 7 | Log retention | ✅ | About 7 days of usernoted lines (sparse at 14 d). Scan-only mode can look back about a week, not just an hour. |
+
+**Other discoveries that change the product**
+- **macOS mutes every notification sound while the screen is shared or mirrored** (`display shared`). Focus does the same. WasThat should show *why* something was silent with reason chips: Focus · Screen sharing · App muted · Mac muted.
+- **The frontmost app's notifications play no sound** unless that app's delegate allows it. That's another reason chip ("app was in front").
+- **A denied audio permission fails silently.** In onboarding, run "Test mute": play a short tone, tap it, and check the captured peak is above 0. Show a fix-it card if not.
+- `IsRunningOutput` stays `true` while an app is muted, so the recorder must tag sounds from muted apps as **muted**, not "played".
+- **Size:** the universal Release build of the M0 skeleton is **1.6 MB** (agent 312 KB).

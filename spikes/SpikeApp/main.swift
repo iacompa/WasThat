@@ -9,6 +9,7 @@ import Darwin
 import Foundation
 import SQLite3
 import SwiftUI
+import UserNotifications
 
 // MARK: - Results file
 
@@ -54,6 +55,13 @@ func scrub(_ s: String) -> String {
     t = t.replacingOccurrences(of: #"[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}"#, with: "<email>", options: [.regularExpression, .caseInsensitive])
     t = t.replacingOccurrences(of: #"\+?\d[\d\-\s().]{7,}\d"#, with: "<number>", options: .regularExpression)
     return String(t.prefix(400))
+}
+
+final class PeakMeter {
+    private var peak: Float = 0
+    private let lock = NSLock()
+    func raise(_ v: Float) { lock.lock(); if v > peak { peak = v }; lock.unlock() }
+    var value: Float { lock.lock(); defer { lock.unlock() }; return peak }
 }
 
 final class LockedBuffer {
@@ -188,6 +196,8 @@ final class Spike: ObservableObject {
     @Published var dbStatus = "Not run yet."
 
     @Published var saved = ""
+    /// Called when a test finishes (used by --auto mode to quit).
+    var onFinish: (() -> Void)?
 
     private func onMain(_ f: @escaping () -> Void) { DispatchQueue.main.async(execute: f) }
     private func note(_ s: String) { onMain { self.saved = s } }
@@ -196,8 +206,16 @@ final class Spike: ObservableObject {
 
     func runNotif() {
         notifRunning = true; notifDone = false
-        notifStatus = "Watching log + audio… (about 7 s)"
+        notifStatus = "Asking for notification permission…"
         DispatchQueue.global(qos: .userInitiated).async { [self] in
+            // Post through the normal notification API (the hardened runtime blocks osascript's Apple Events).
+            let center = UNUserNotificationCenter.current()
+            let gate = DispatchSemaphore(value: 0)
+            var permission = false
+            center.requestAuthorization(options: [.alert, .sound]) { granted, _ in permission = granted; gate.signal() }
+            gate.wait()
+            onMain { self.notifStatus = "Watching log + audio… (about 7 s)" }
+
             let stream = Process()
             stream.executableURL = URL(fileURLWithPath: "/usr/bin/log")
             stream.arguments = ["stream", "--level", "debug", "--style", "ndjson", "--predicate",
@@ -215,10 +233,11 @@ final class Spike: ObservableObject {
             var starts: [[String: Any]] = []
             let t0 = Date()
 
-            let osa = Process()
-            osa.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-            osa.arguments = ["-e", "display notification \"Spike test: did you hear Glass?\" with title \"WasThat spike\" sound name \"Glass\""]
-            try? osa.run()
+            let content = UNMutableNotificationContent()
+            content.title = "WasThat spike"
+            content.body = "Did you hear this notification's sound?"
+            content.sound = .default
+            center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
 
             while Date().timeIntervalSince(t0) < 5 {
                 for o in CA.processList() {
@@ -245,15 +264,19 @@ final class Spike: ObservableObject {
                 let proc = (obj["processImagePath"] as? String)?.split(separator: "/").last.map(String.init) ?? "?"
                 let level = obj["messageType"] as? String ?? "?"
                 let lower = msg.lowercased()
-                let keep = lower.contains("sound") || lower.contains("scripteditor2")
+                let keep = lower.contains("sound") || lower.contains("wasthat")
                     || (proc == "coreaudiod" && lower.contains("on behalf of"))
                 if keep && interesting.count < 80 {
                     interesting.append("[\(proc)/\(obj["category"] as? String ?? "")/\(level)] " + scrub(msg))
                 }
             }
-            let data: [String: Any] = ["audioStarts": starts, "logLinesSeen": total, "interestingLines": interesting]
+            let data: [String: Any] = ["notificationPermission": permission, "audioStarts": starts,
+                                       "logLinesSeen": total, "interestingLines": interesting]
+            let ok = Results.record("notification-sound", data)
             onMain {
                 self.notifData = data
+                self.saved = ok ? "Test 1 auto-saved ✓" : "Test 1 could not be saved"
+                self.onFinish?()
                 self.notifRunning = false
                 self.notifDone = true
                 let who = starts.map { "\($0["process"] ?? "?")" }.joined(separator: ", ")
@@ -311,6 +334,7 @@ final class Spike: ObservableObject {
             usleep(3_500_000)
             info["runningOutputB"] = CA.running(obj)
 
+            let peak = PeakMeter()
             var agg = AudioObjectID(kAudioObjectUnknown)
             var procID: AudioDeviceIOProcID? = nil
             if tapStatus == noErr, let outUID = CA.defaultOutputUID() {
@@ -328,7 +352,15 @@ final class Spike: ObservableObject {
                 let aggStatus = AudioHardwareCreateAggregateDevice(d as CFDictionary, &agg)
                 info["createAggregate"] = fourCC(aggStatus)
                 if aggStatus == noErr {
-                    let ioStatus = AudioDeviceCreateIOProcIDWithBlock(&procID, agg, nil) { _, _, _, _, _ in }
+                    let ioStatus = AudioDeviceCreateIOProcIDWithBlock(&procID, agg, nil) { _, input, _, _, _ in
+                        for buffer in UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: input)) {
+                            guard let data = buffer.mData else { continue }
+                            let samples = data.assumingMemoryBound(to: Float.self)
+                            var local: Float = 0
+                            for i in 0..<(Int(buffer.mDataByteSize) / MemoryLayout<Float>.size) { local = max(local, abs(samples[i])) }
+                            peak.raise(local)
+                        }
+                    }
                     info["createIOProc"] = fourCC(ioStatus)
                     if ioStatus == noErr, let procID {
                         info["deviceStart"] = fourCC(AudioDeviceStart(agg, procID))
@@ -338,6 +370,8 @@ final class Spike: ObservableObject {
             setPhase("PHASE C · tap + running device: silent?", Comic.rust)
             usleep(3_500_000)
             info["runningOutputC"] = CA.running(obj)
+            info["tapCapturedPeakC"] = Double(peak.value)
+            info["tapCapturedAudio"] = peak.value > 0.001
 
             if let procID {
                 AudioDeviceStop(agg, procID)
@@ -353,12 +387,15 @@ final class Spike: ObservableObject {
     }
 
     private func finishMute(_ info: [String: Any]) {
+        let ok = Results.record("mute-tap", info)
         onMain {
             self.muteData = info
             self.muteRunning = false
             self.muteDone = true
-            self.phase = "Done. Answer below, then Save."
+            self.phase = ok ? "Done · auto-saved ✓" : "Done · could not save"
             self.phaseColor = Comic.yellow
+            self.saved = ok ? "Test 2 auto-saved ✓" : "Test 2 could not be saved"
+            self.onFinish?()
         }
     }
 
@@ -442,11 +479,41 @@ final class Spike: ObservableObject {
     }
 }
 
+/// Lets the test notification play its sound even while the spike is the frontmost app
+/// (without this, macOS asks the app and gets "no options", so no sound).
+final class NotificationPresenter: NSObject, UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .list, .sound])
+    }
+}
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    let presenter = NotificationPresenter()
+
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        UNUserNotificationCenter.current().delegate = presenter
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+
+    let autoSpike = Spike()
+
+    private func runAutoIfRequested() -> Bool {
+        let args = CommandLine.arguments
+        guard let i = args.firstIndex(of: "--auto"), i + 1 < args.count else { return false }
+        autoSpike.onFinish = { DispatchQueue.main.asyncAfter(deadline: .now() + 1) { NSApp.terminate(nil) } }
+        switch args[i + 1] {
+        case "notif": autoSpike.runNotif()
+        case "mute": autoSpike.runMute()
+        default: NSApp.terminate(nil)
+        }
+        return true
+    }
 
     /// `--snapshot <file.png>` renders the window content to a PNG and quits (design review aid).
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if runAutoIfRequested() { return }
         let args = CommandLine.arguments
         guard let i = args.firstIndex(of: "--snapshot"), i + 1 < args.count else { return }
         let spike = Spike()

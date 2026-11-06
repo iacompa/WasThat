@@ -48,23 +48,25 @@ struct ContentView: View {
                 header
 
                 Card(step: 1, title: "Notification sound") {
-                    Text("Turn **Focus / Do Not Disturb off** (Control Center → Focus) and turn your volume up. Press Run: a test notification with the “Glass” sound is posted while the app watches the system log and audio.")
+                    Text("Turn **Focus / Do Not Disturb off** (Control Center → Focus) and turn your volume up. Press Run, allow notifications if asked, and listen: a test notification with a sound is posted while the app watches the system log and audio.")
                     HStack(spacing: 12) {
                         Button(s.notifRunning ? "Running…" : "Run") { s.runNotif() }.disabled(s.notifRunning)
                         Text(s.notifStatus).font(.callout).foregroundStyle(Comic.ink.opacity(0.6))
                     }
-                    if s.notifDone {
-                        HStack(spacing: 10) {
-                            Text("Did you hear the Glass sound?").bold()
-                            Button("Yes, heard it") { s.saveNotif(heard: true) }
-                            Button("No") { s.saveNotif(heard: false) }.buttonStyle(ComicButtonStyle(fill: Comic.paper))
-                        }
-                    }
                 }
 
                 Card(step: 2, title: "Mute another app") {
-                    Text("Press Run and listen: soft beeps play for about 13 s while two ways of muting them are tried. Watch the label below **and** the top-right of your menu bar for a recording dot. If macOS asks for permission, allow it, then Run again.")
-                    Button(s.muteRunning ? "Running…" : "Run") { s.runMute() }.disabled(s.muteRunning)
+                    Text("Press Run and listen: soft beeps play for about 13 s while two ways of muting them are tried. Note **which phases go silent**, and watch the top-right of your menu bar for a recording dot.")
+                    HStack(spacing: 12) {
+                        Button(s.muteRunning ? "Running…" : "Run") { s.runMute() }.disabled(s.muteRunning)
+                        Button("Open audio permission") {
+                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
+                        }
+                        .buttonStyle(ComicButtonStyle(fill: Comic.paper))
+                    }
+                    Text("Needs **System Audio Recording** for WasThat Spike switched on (Privacy & Security → Screen & System Audio Recording → “System Audio Recording Only”).")
+                        .font(.caption)
+                        .foregroundStyle(Comic.ink.opacity(0.6))
                     Text(s.phase)
                         .font(Comic.display(19))
                         .textCase(.uppercase)
@@ -74,35 +76,14 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .inkPanel(fill: s.phaseColor, radius: 8, shadow: 3, line: 2.5)
                         .animation(.easeOut(duration: 0.2), value: s.phase)
-                    if s.muteDone {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Toggle("Phase B (tap only) was silent", isOn: $s.bSilent)
-                            Toggle("Phase C (tap + running device) was silent", isOn: $s.cSilent)
-                            Toggle("Phase D: beeps came back", isOn: $s.dAudible)
-                            Toggle("I saw a recording / microphone dot in the menu bar", isOn: $s.sawIndicator)
-                            Toggle("macOS showed a permission prompt", isOn: $s.gotPrompt)
-                        }
-                        Button("Save answers") { s.saveMute() }
-                    }
                 }
 
                 Card(step: 3, title: "Jump to settings") {
-                    Text("Each button tries to open System Settings right on **Messages'** notification page. Pick where each one landed, then Save.")
-                    ForEach(Array(Spike.links.enumerated()), id: \.offset) { i, link in
-                        HStack(spacing: 12) {
-                            Button("Try link \(i + 1)") { s.open(link.key) }
-                            Picker("", selection: Binding(get: { s.linkAnswers[link.key] ?? "" },
-                                                          set: { s.linkAnswers[link.key] = $0 })) {
-                                Text("Where did it land?").tag("")
-                                Text("Messages' notification page").tag("messages-page")
-                                Text("Notifications list (not Messages)").tag("notifications-list")
-                                Text("Something else / nothing").tag("other")
-                            }
-                            .labelsHidden()
-                            .frame(width: 260)
-                        }
+                    Text("Each button tries to open System Settings right on **Messages'** notification page. Note where each one lands.")
+                    HStack(spacing: 12) {
+                        Button("Try link 1") { s.open("link1") }
+                        Button("Try link 2") { s.open("link2") }
                     }
-                    Button("Save answers") { s.saveLinks() }
                 }
 
                 Card(step: 4, title: "Notification database", optional: true) {
@@ -138,7 +119,7 @@ struct ContentView: View {
                     .rotationEffect(.degrees(-6))
                     .offset(y: -6)
             }
-            Text("Four quick checks that need your ears and eyes. Each one saves its result for Claude. No notification content is ever recorded.")
+            Text("Run each test. Data saves automatically; afterwards Claude asks you what you heard and saw. No notification content is ever recorded.")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Comic.paper.opacity(0.75))
         }
