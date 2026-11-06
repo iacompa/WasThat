@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<title>WasThat C layer 1-background</title>
+<defs>
+<pattern id="c-dots" patternUnits="userSpaceOnUse" width="36" height="36" patternTransform="rotate(45)">
+  <circle cx="18" cy="18" r="7" fill="#FFFFFF" fill-opacity="0.15"/>
+</pattern>
+<radialGradient id="c-dotfade" cx="0.12" cy="0.08" r="0.75">
+  <stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+</radialGradient>
+<mask id="c-dotmask" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+  <rect x="0" y="0" width="1024" height="1024" fill="url(#c-dotfade)"/>
+</mask>
+<clipPath id="c-balclip"><path d="M284,258 H618 A126,126 0 0 1 744,384 V612 A126,126 0 0 1 618,738 H416 C382,796 270,854 200,864 C240,824 306,788 298,738 H284 A126,126 0 0 1 158,612 V384 A126,126 0 0 1 284,258 Z"/></clipPath>
+<mask id="cq-m" maskUnits="userSpaceOnUse" x="-80" y="-80" width="160" height="160"><path d="M-21,-19 C-21,-33.6 -11.6,-43 0,-43 C11.6,-43 21,-33.6 21,-22 C21,-11 13,-6 7,-2 C1.75,1.5 0,4 0,9 L0,14" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><circle cx="0" cy="41" r="11.5" fill="#fff"/></mask></defs>
+<rect x="0" y="0" width="1024" height="1024" fill="#7C5CFA"/><g transform="translate(512 512) scale(1.24) translate(-512 -512)"><path d="M100,705 C320,800 660,800 924,650 L924,924 L100,924 Z" fill="#6544E8"/></g><rect x="0" y="0" width="1024" height="1024" fill="url(#c-dots)" mask="url(#c-dotmask)"/>
+</svg>

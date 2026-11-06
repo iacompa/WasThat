@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<title>WasThat A layer 2-notification</title>
+<defs>
+<linearGradient id="a-bg" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#6AD6FF"/><stop offset="1" stop-color="#2E6CF6"/>
+</linearGradient>
+<linearGradient id="a-bg-user" gradientUnits="userSpaceOnUse" x1="0" y1="100" x2="0" y2="924">
+  <stop offset="0" stop-color="#6AD6FF"/><stop offset="1" stop-color="#2E6CF6"/>
+</linearGradient>
+<radialGradient id="a-glow" cx="0.3" cy="0.12" r="0.75">
+  <stop offset="0" stop-color="#fff" stop-opacity="0.35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="a-card" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E9F0FB"/>
+</linearGradient>
+<linearGradient id="a-app" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#8FDCFF"/><stop offset="1" stop-color="#4C8DF8"/>
+</linearGradient>
+<linearGradient id="a-badge" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#FF7A66"/><stop offset="1" stop-color="#F0323C"/>
+</linearGradient>
+<filter id="a-sh" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000" flood-opacity="0.22"/></filter>
+<filter id="a-qsh" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#8A0E16" flood-opacity="0.18"/></filter>
+</defs>
+<g transform="translate(512 512) scale(1.24) translate(-512 -512)"><g><rect x="138" y="556" width="590" height="250" rx="64" fill="url(#a-card)"/></g><rect x="184" y="617" width="128" height="128" rx="34" fill="url(#a-app)"/><g transform="translate(248 681) scale(0.84)" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round"><path d="M-46,-14 H-30 L-6,-34 V34 L-30,14 H-46 Z" fill="#FFFFFF" stroke-width="8"/><path d="M12,-16 Q24,0 12,16" stroke-width="10"/><path d="M28,-30 Q50,0 28,30" stroke-width="10"/></g><rect x="352" y="634" width="190" height="34" rx="17" fill="#B9C6D8"/><rect x="352" y="694" width="300" height="34" rx="17" fill="#D5DEEA"/></g>
+</svg>

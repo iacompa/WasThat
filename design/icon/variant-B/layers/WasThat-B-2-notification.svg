@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<title>WasThat B layer 2-notification</title>
+<defs>
+<linearGradient id="b-bg" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#FFE98A"/><stop offset="1" stop-color="#FFB443"/>
+</linearGradient>
+<radialGradient id="b-glow" cx="0.28" cy="0.1" r="0.8">
+  <stop offset="0" stop-color="#fff" stop-opacity="0.45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="b-card" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFF1DE"/>
+</linearGradient>
+<linearGradient id="b-q" gradientUnits="userSpaceOnUse" x1="0" y1="-52" x2="0" y2="52">
+  <stop offset="0" stop-color="#FF7466"/><stop offset="1" stop-color="#EC3A48"/>
+</linearGradient>
+<filter id="b-sh" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#B35A00" flood-opacity="0.2"/></filter>
+<filter id="b-qsh" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#B33A00" flood-opacity="0.22"/></filter>
+</defs>
+<g transform="translate(512 512) scale(1.24) translate(-512 -512)"><g><rect x="178" y="598" width="596" height="232" rx="74" fill="url(#b-card)"/></g><ellipse cx="358.28" cy="699.04" rx="25" ry="31" fill="#3B2F4A"/><circle cx="366.28" cy="688.04" r="9.5" fill="#fff"/><circle cx="350.28" cy="712.04" r="4.5" fill="#fff" opacity="0.85"/><ellipse cx="510.28" cy="699.04" rx="25" ry="31" fill="#3B2F4A"/><circle cx="518.28" cy="688.04" r="9.5" fill="#fff"/><circle cx="502.28" cy="712.04" r="4.5" fill="#fff" opacity="0.85"/><ellipse cx="300.28" cy="749.04" rx="32" ry="18" fill="#FFAEA4" opacity="0.85"/><ellipse cx="568.28" cy="749.04" rx="32" ry="18" fill="#FFAEA4" opacity="0.85"/><ellipse cx="434.28" cy="753.04" rx="15" ry="18" fill="#3B2F4A"/></g>
+</svg>

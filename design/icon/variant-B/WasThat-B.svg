@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<title>WasThat icon, variant B (perch)</title>
+<defs>
+<linearGradient id="b-bg" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#FFE98A"/><stop offset="1" stop-color="#FFB443"/>
+</linearGradient>
+<radialGradient id="b-glow" cx="0.28" cy="0.1" r="0.8">
+  <stop offset="0" stop-color="#fff" stop-opacity="0.45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="b-card" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFF1DE"/>
+</linearGradient>
+<linearGradient id="b-q" gradientUnits="userSpaceOnUse" x1="0" y1="-52" x2="0" y2="52">
+  <stop offset="0" stop-color="#FF7466"/><stop offset="1" stop-color="#EC3A48"/>
+</linearGradient>
+<filter id="b-sh" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#B35A00" flood-opacity="0.2"/></filter>
+<filter id="b-qsh" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#B33A00" flood-opacity="0.22"/></filter>
+<filter id="body-shadow" x="-15%" y="-15%" width="130%" height="135%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="22" result="b1"/><feOffset in="b1" dy="16" result="o1"/><feComponentTransfer in="o1" result="s1"><feFuncA type="linear" slope="0.22"/></feComponentTransfer><feGaussianBlur in="SourceAlpha" stdDeviation="5" result="b2"/><feOffset in="b2" dy="5" result="o2"/><feComponentTransfer in="o2" result="s2"><feFuncA type="linear" slope="0.18"/></feComponentTransfer><feMerge><feMergeNode in="s1"/><feMergeNode in="s2"/><feMergeNode in="SourceGraphic"/></feMerge></filter><clipPath id="body-clip"><rect x="100" y="100" width="824" height="824" rx="185" /></clipPath></defs>
+<g filter="url(#body-shadow)"><rect x="100" y="100" width="824" height="824" rx="185" fill="url(#b-bg)"/></g>
+<g clip-path="url(#body-clip)">
+<rect x="100" y="100" width="824" height="824" rx="185" fill="url(#b-glow)"/>
+<g filter="url(#b-sh)"><rect x="178" y="598" width="596" height="232" rx="74" fill="url(#b-card)"/></g><ellipse cx="358.28" cy="699.04" rx="25" ry="31" fill="#3B2F4A"/><circle cx="366.28" cy="688.04" r="9.5" fill="#fff"/><circle cx="350.28" cy="712.04" r="4.5" fill="#fff" opacity="0.85"/><ellipse cx="510.28" cy="699.04" rx="25" ry="31" fill="#3B2F4A"/><circle cx="518.28" cy="688.04" r="9.5" fill="#fff"/><circle cx="502.28" cy="712.04" r="4.5" fill="#fff" opacity="0.85"/><ellipse cx="300.28" cy="749.04" rx="32" ry="18" fill="#FFAEA4" opacity="0.85"/><ellipse cx="568.28" cy="749.04" rx="32" ry="18" fill="#FFAEA4" opacity="0.85"/><ellipse cx="434.28" cy="753.04" rx="15" ry="18" fill="#3B2F4A"/>
+<g filter="url(#b-qsh)"><g transform="translate(710.35 428.82) rotate(-9) scale(4.65) translate(0 -0.25)"><path d="M-21,-19 C-21,-33.6 -11.6,-43 0,-43 C11.6,-43 21,-33.6 21,-22 C21,-11 13,-6 7,-2 C1.75,1.5 0,4 0,9 L0,14" fill="none" stroke="url(#b-q)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><circle cx="0" cy="41" r="11.5" fill="url(#b-q)"/></g></g>
+</g>
+
+</svg>

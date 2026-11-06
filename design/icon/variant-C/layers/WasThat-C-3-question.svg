@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<title>WasThat C layer 3-question</title>
+<defs>
+<pattern id="c-dots" patternUnits="userSpaceOnUse" width="36" height="36" patternTransform="rotate(45)">
+  <circle cx="18" cy="18" r="7" fill="#FFFFFF" fill-opacity="0.15"/>
+</pattern>
+<radialGradient id="c-dotfade" cx="0.12" cy="0.08" r="0.75">
+  <stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+</radialGradient>
+<mask id="c-dotmask" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+  <rect x="0" y="0" width="1024" height="1024" fill="url(#c-dotfade)"/>
+</mask>
+<clipPath id="c-balclip"><path d="M284,258 H618 A126,126 0 0 1 744,384 V612 A126,126 0 0 1 618,738 H416 C382,796 270,854 200,864 C240,824 306,788 298,738 H284 A126,126 0 0 1 158,612 V384 A126,126 0 0 1 284,258 Z"/></clipPath>
+<mask id="cq-m" maskUnits="userSpaceOnUse" x="-80" y="-80" width="160" height="160"><path d="M-21,-19 C-21,-33.6 -11.6,-43 0,-43 C11.6,-43 21,-33.6 21,-22 C21,-11 13,-6 7,-2 C1.75,1.5 0,4 0,9 L0,14" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><circle cx="0" cy="41" r="11.5" fill="#fff"/></mask></defs>
+<g transform="translate(512 512) scale(1.24) translate(-512 -512)"><g transform="translate(457 519) rotate(8) scale(3.71) translate(0 -0.25)"><path d="M-21,-19 C-21,-33.6 -11.6,-43 0,-43 C11.6,-43 21,-33.6 21,-22 C21,-11 13,-6 7,-2 C1.75,1.5 0,4 0,9 L0,14" fill="none" stroke="#EBCF9F" stroke-width="27.16" stroke-linecap="round" stroke-linejoin="round"/><circle cx="0" cy="41" r="16.08" fill="#EBCF9F"/><path d="M-21,-19 C-21,-33.6 -11.6,-43 0,-43 C11.6,-43 21,-33.6 21,-22 C21,-11 13,-6 7,-2 C1.75,1.5 0,4 0,9 L0,14" fill="none" stroke="#EBCF9F" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><circle cx="0" cy="41" r="11.5" fill="#EBCF9F"/></g><g transform="translate(445 504) rotate(8) scale(3.71) translate(0 -0.25)"><path d="M-21,-19 C-21,-33.6 -11.6,-43 0,-43 C11.6,-43 21,-33.6 21,-22 C21,-11 13,-6 7,-2 C1.75,1.5 0,4 0,9 L0,14" fill="none" stroke="#241B35" stroke-width="27.16" stroke-linecap="round" stroke-linejoin="round"/><circle cx="0" cy="41" r="16.08" fill="#241B35"/><path d="M-21,-19 C-21,-33.6 -11.6,-43 0,-43 C11.6,-43 21,-33.6 21,-22 C21,-11 13,-6 7,-2 C1.75,1.5 0,4 0,9 L0,14" fill="none" stroke="#D93A40" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><circle cx="0" cy="41" r="11.5" fill="#D93A40"/><g mask="url(#cq-m)"><g transform="translate(2.6 -3)"><path d="M-21,-19 C-21,-33.6 -11.6,-43 0,-43 C11.6,-43 21,-33.6 21,-22 C21,-11 13,-6 7,-2 C1.75,1.5 0,4 0,9 L0,14" fill="none" stroke="#FF5A4E" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><circle cx="0" cy="41" r="11.5" fill="#FF5A4E"/></g></g></g></g>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<title>WasThat icon, variant A (badge)</title>
+<defs>
+<linearGradient id="a-bg" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#6AD6FF"/><stop offset="1" stop-color="#2E6CF6"/>
+</linearGradient>
+<linearGradient id="a-bg-user" gradientUnits="userSpaceOnUse" x1="0" y1="100" x2="0" y2="924">
+  <stop offset="0" stop-color="#6AD6FF"/><stop offset="1" stop-color="#2E6CF6"/>
+</linearGradient>
+<radialGradient id="a-glow" cx="0.3" cy="0.12" r="0.75">
+  <stop offset="0" stop-color="#fff" stop-opacity="0.35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="a-card" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E9F0FB"/>
+</linearGradient>
+<linearGradient id="a-app" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#8FDCFF"/><stop offset="1" stop-color="#4C8DF8"/>
+</linearGradient>
+<linearGradient id="a-badge" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#FF7A66"/><stop offset="1" stop-color="#F0323C"/>
+</linearGradient>
+<filter id="a-sh" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000" flood-opacity="0.22"/></filter>
+<filter id="a-qsh" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#8A0E16" flood-opacity="0.18"/></filter>
+<filter id="body-shadow" x="-15%" y="-15%" width="130%" height="135%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="22" result="b1"/><feOffset in="b1" dy="16" result="o1"/><feComponentTransfer in="o1" result="s1"><feFuncA type="linear" slope="0.22"/></feComponentTransfer><feGaussianBlur in="SourceAlpha" stdDeviation="5" result="b2"/><feOffset in="b2" dy="5" result="o2"/><feComponentTransfer in="o2" result="s2"><feFuncA type="linear" slope="0.18"/></feComponentTransfer><feMerge><feMergeNode in="s1"/><feMergeNode in="s2"/><feMergeNode in="SourceGraphic"/></feMerge></filter><clipPath id="body-clip"><rect x="100" y="100" width="824" height="824" rx="185" /></clipPath></defs>
+<g filter="url(#body-shadow)"><rect x="100" y="100" width="824" height="824" rx="185" fill="url(#a-bg)"/></g>
+<g clip-path="url(#body-clip)">
+<rect x="100" y="100" width="824" height="824" rx="185" fill="url(#a-glow)"/>
+<g filter="url(#a-sh)"><rect x="138" y="556" width="590" height="250" rx="64" fill="url(#a-card)"/></g><rect x="184" y="617" width="128" height="128" rx="34" fill="url(#a-app)"/><g transform="translate(248 681) scale(0.84)" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round"><path d="M-46,-14 H-30 L-6,-34 V34 L-30,14 H-46 Z" fill="#FFFFFF" stroke-width="8"/><path d="M12,-16 Q24,0 12,16" stroke-width="10"/><path d="M28,-30 Q50,0 28,30" stroke-width="10"/></g><rect x="352" y="634" width="190" height="34" rx="17" fill="#B9C6D8"/><rect x="352" y="694" width="300" height="34" rx="17" fill="#D5DEEA"/>
+<circle cx="664" cy="442" r="220" fill="url(#a-bg-user)"/><g filter="url(#a-sh)"><circle cx="664" cy="442" r="198" fill="url(#a-badge)"/></g><g filter="url(#a-qsh)"><g transform="translate(664 446) scale(2.72) translate(0 -0.25)"><path d="M-21,-19 C-21,-33.6 -11.6,-43 0,-43 C11.6,-43 21,-33.6 21,-22 C21,-11 13,-6 7,-2 C1.75,1.5 0,4 0,9 L0,14" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><circle cx="0" cy="41" r="11.5" fill="#FFFFFF"/></g></g>
+</g>
+
+</svg>

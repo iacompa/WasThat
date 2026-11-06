@@ -1,0 +1,17 @@
+# Generated Xcode project (run `xcodegen generate`)
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+
+# Build output
+build/
+DerivedData/
+*.dmg
+
+# Spike and icon tool outputs
+spikes/SpikeApp/build/
+design/icon/tools/.build/
+design/icon/export/
+
+# macOS
+.DS_Store

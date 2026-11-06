@@ -1,0 +1,85 @@
+# XcodeGen spec. Generate the Xcode project with:  xcodegen generate
+# (WasThat.xcodeproj is generated, not committed.)
+name: WasThat
+options:
+  bundleIdPrefix: com.iacompa
+  deploymentTarget:
+    macOS: "14.2"
+  createIntermediateGroups: true
+  developmentLanguage: en
+
+settings:
+  base:
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: L98358T6WZ
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "Developer ID Application"
+    ENABLE_HARDENED_RUNTIME: YES
+    SWIFT_VERSION: "6.0"
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    DEAD_CODE_STRIPPING: YES
+
+targets:
+  WasThat:
+    type: application
+    platform: macOS
+    sources:
+      - App
+      - Shared
+      - Resources
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: WasThat
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.utilities
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        LSUIElement: true
+        NSAudioCaptureUsageDescription: WasThat mutes only the app you pick, and only for as long as you choose.
+        NSHumanReadableCopyright: © 2026 IA COMPA LLC. Free software under the GPL-3.0.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.iacompa.wasthat
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    dependencies:
+      # The recorder ships inside the app and is started at login via SMAppService.
+      - target: WasThatAgent
+        embed: true
+        codeSign: true
+        copy:
+          destination: wrapper
+          subpath: Contents/Library/LoginItems
+
+  WasThatAgent:
+    type: application
+    platform: macOS
+    sources:
+      - Agent
+      - Shared
+    info:
+      path: Agent/Info.plist
+      properties:
+        CFBundleDisplayName: WasThat Agent
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        LSBackgroundOnly: true
+        NSAudioCaptureUsageDescription: WasThat mutes only the app you pick, and only for as long as you choose.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.iacompa.wasthat.agent
+        SKIP_INSTALL: YES
+
+schemes:
+  WasThat:
+    build:
+      targets:
+        WasThat: all
+        WasThatAgent: all
+    run:
+      config: Debug
+    archive:
+      config: Release
