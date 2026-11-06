@@ -215,4 +215,6 @@ Spike tools: `spikes/audioprobe.swift`, `spikes/oslogstore.swift`, and the guide
 - **The frontmost app's notifications play no sound** unless that app's delegate allows it. That's another reason chip ("app was in front").
 - **A denied audio permission fails silently.** In onboarding, run "Test mute": play a short tone, tap it, and check the captured peak is above 0. Show a fix-it card if not.
 - `IsRunningOutput` stays `true` while an app is muted, so the recorder must tag sounds from muted apps as **muted**, not "played".
+- **`kAudioProcessPropertyIsRunningOutput` never notifies property listeners** (found in the recorder smoke test). `kAudioProcessPropertyIsRunning` does, so `AudioWatcher` listens on both. The smoke test logged `afplay` start + stop with a 1.36 s duration, matching coreaudiod's own figure.
+- **Release pipeline dry run passes:** `scripts/release.sh --skip-notarize` gives a universal 1.2 MB app, with Developer ID, secure timestamp, hardened runtime and no `get-task-allow` on both bundles. Notarization is handed to Codex: `docs/handoff/codex-test-and-notarize.md`.
 - **Size:** the universal Release build of the M0 skeleton is **1.6 MB** (agent 312 KB).

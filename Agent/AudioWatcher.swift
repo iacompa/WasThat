@@ -19,6 +19,13 @@ final class AudioWatcher {
         let listener: AudioObjectPropertyListenerBlock
     }
 
+    /// macOS 27 never notifies `IsRunningOutput` changes, but does notify `IsRunning` when a
+    /// process starts or stops audio I/O; we re-read `IsRunningOutput` whenever either fires.
+    private static let triggers: [AudioObjectPropertySelector] = [
+        kAudioProcessPropertyIsRunning,
+        kAudioProcessPropertyIsRunningOutput,
+    ]
+
     private var watched: [AudioObjectID: Watched] = [:]
     private var listListener: AudioObjectPropertyListenerBlock?
 
@@ -41,11 +48,13 @@ final class AudioWatcher {
     private func watch(_ object: AudioObjectID) {
         let pid = AudioProcess.pid(of: object)
         let client = Client(pid: pid, bundleID: AudioProcess.bundleID(of: object), name: AudioProcess.executableName(of: pid))
-        var a = AudioProcess.address(kAudioProcessPropertyIsRunningOutput)
         let block: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
             MainActor.assumeIsolated { self?.playingChanged(object) }
         }
-        AudioObjectAddPropertyListenerBlock(object, &a, .main, block)
+        for selector in Self.triggers {
+            var a = AudioProcess.address(selector)
+            AudioObjectAddPropertyListenerBlock(object, &a, .main, block)
+        }
         watched[object] = Watched(client: client, startedAt: nil, listener: block)
         playingChanged(object)
     }
@@ -53,8 +62,10 @@ final class AudioWatcher {
     private func unwatch(_ object: AudioObjectID) {
         guard let entry = watched.removeValue(forKey: object) else { return }
         if let started = entry.startedAt { onStop(entry.client, Date().timeIntervalSince(started)) }
-        var a = AudioProcess.address(kAudioProcessPropertyIsRunningOutput)
-        AudioObjectRemovePropertyListenerBlock(object, &a, .main, entry.listener)
+        for selector in Self.triggers {
+            var a = AudioProcess.address(selector)
+            AudioObjectRemovePropertyListenerBlock(object, &a, .main, entry.listener)
+        }
     }
 
     private func playingChanged(_ object: AudioObjectID) {
