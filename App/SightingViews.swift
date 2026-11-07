@@ -13,6 +13,15 @@ struct AppIdentity {
                 icon = NSImage(systemSymbolName: "gearshape", accessibilityDescription: nil)
                 return
             }
+            if let url = SystemSourceWorkspace().applicationURL(bundleID: identifier),
+               let bundle = Bundle(url: url),
+               let ownerID = bundle.bundleIdentifier, ownerID != identifier {
+                name = (bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)
+                    ?? (bundle.object(forInfoDictionaryKey: "CFBundleName") as? String)
+                    ?? url.deletingPathExtension().lastPathComponent
+                icon = NSWorkspace.shared.icon(forFile: url.path)
+                return
+            }
             if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == identifier }),
                let name = app.localizedName, !name.isEmpty {
                 self.name = name
@@ -262,8 +271,7 @@ struct SourceActionsView: View {
     private func destinationButtons(_ destinations: [SourceDestination]) -> some View {
         ForEach(destinations, id: \.self) { destination in
             Button(destination.title) { navigator.open(destination) }
-                .buttonStyle(.bordered)
-                .tint(.primary)
+                .buttonStyle(ComicButtonStyle(fill: Comic.paper))
                 .disabled(navigator.isOpening)
                 .accessibilityLabel(destination.title + " for " + identityName)
                 .help(help(for: destination))
