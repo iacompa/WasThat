@@ -43,7 +43,7 @@ The current app does not save audio samples. It has no analytics, account, or au
 
 This preview does not yet identify notification senders, explain suppression reasons, correlate events, or identify individual browser tabs. It does not provide mute actions, settings links, replay, rarity ranking, a global hotkey, onboarding, or a recorder control.
 
-The separate feasibility tools in `spikes/` are developer probes. They are not features of the distributed app. Two mute probes captured zero samples, and the owner's listening checks were inconclusive. Per-app muting remains unproved. The final notification probe observed suppressed playback. Audible notification playback remains unproved.
+The separate feasibility tools in `spikes/` are developer probes. They are not features of the distributed app. Two mute probes recorded peak 0 and detected no nonzero audio, and the owner's listening checks were inconclusive. Per-app muting remains unproved. The final notification probe observed suppressed playback. Audible notification playback remains unproved.
 
 Recorder smoke checks passed on Apple silicon with macOS 27.0.1. The agent recorded start/stop pairs for test sounds and showed no measured CPU-time increase during a 60-second idle check. One shorter duration did not recur in a follow-up. Intel hardware and older supported macOS versions were not tested.
 

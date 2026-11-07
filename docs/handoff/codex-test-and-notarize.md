@@ -98,8 +98,8 @@ Copy only fixed facts and relevant process names into the report. Never copy ori
 The owner decides whether to end Focus or screen sharing.
 
 **Mute test (`mute-tap`).** Every `create…`/`destroy…` status should be `noErr`.
-- `tapCapturedAudio: false` / `tapCapturedPeakC: 0` means no samples reached the phase C callback. First check tap, aggregate, IOProc, device-start statuses, and source playback. Zero samples alone do not identify the cause. The M0 baseline had denied permission. Ask the owner to check that permission when the other checks pass, then rerun.
-- `tapCapturedAudio: true` proves nonzero samples reached phase C. It does not prove that phase B muted the source. Rerun **while the owner listens**:
+- `tapCapturedAudio: false` / `tapCapturedPeakC: 0` means phase C detected no nonzero audio. The measurement does not count callbacks or sample frames. First check tap, aggregate, IOProc, device-start statuses, and source playback. A zero peak alone does not identify the cause. The M0 baseline had denied permission. Ask the owner to check that permission when the other checks pass, then rerun.
+- `tapCapturedAudio: true` means the phase C peak exceeded 0.001 in the current callback interpretation. It does not prove that phase B muted the source. Rerun **while the owner listens**:
 
 | Phase | Time | Label | Expected |
 |---|---|---|---|
