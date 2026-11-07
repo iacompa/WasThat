@@ -72,7 +72,8 @@ struct MenuPanelView: View {
                 .padding(.trailing, 6)
                 .padding(.bottom, 8)
             }
-            .frame(maxHeight: 390)
+            // The menu window needs an ideal viewport height instead of a maximum alone.
+            .frame(minHeight: 240, idealHeight: 340, maxHeight: 390)
 
             HStack {
                 Button("Open history", action: showHistory)

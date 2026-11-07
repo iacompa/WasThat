@@ -151,8 +151,6 @@ struct SightingCard: View {
                     }
                     Text(sighting.time, format: .dateTime.hour().minute().second())
                         .font(prominent ? .title3.monospacedDigit() : .callout.monospacedDigit())
-                    Text(sighting.time, format: .relative(presentation: .named))
-                        .font(.caption)
                 }
             }
             Text(presentation.evidence)
