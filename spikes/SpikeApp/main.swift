@@ -1,7 +1,7 @@
 // WasThat · M0 spike app
 // A guided checklist for the feasibility questions that need a human's ears and eyes.
 // Every test appends one JSON line to ~/Library/Application Support/WasThat/spike-results.jsonl.
-// Privacy: no notification content is recorded; log lines are scrubbed of URLs, emails and numbers.
+// Privacy: notification logs persist only fixed, selected facts. Raw payloads stay in memory.
 
 import AppKit
 import CoreAudio
@@ -255,21 +255,9 @@ final class Spike: ObservableObject {
             stream.terminate()
             pipe.fileHandleForReading.readabilityHandler = nil
 
-            var interesting: [String] = []
-            var total = 0
-            for line in buf.string.split(separator: "\n") {
-                guard let obj = try? JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any],
-                      let msg = obj["eventMessage"] as? String else { continue }
-                total += 1
-                let proc = (obj["processImagePath"] as? String)?.split(separator: "/").last.map(String.init) ?? "?"
-                let level = obj["messageType"] as? String ?? "?"
-                let lower = msg.lowercased()
-                let keep = lower.contains("sound") || lower.contains("wasthat")
-                    || (proc == "coreaudiod" && lower.contains("on behalf of"))
-                if keep && interesting.count < 80 {
-                    interesting.append("[\(proc)/\(obj["category"] as? String ?? "")/\(level)] " + scrub(msg))
-                }
-            }
+            let summary = NotificationLogSanitizer.summarize(buf.string)
+            let total = summary.seenLineCount
+            let interesting = summary.interestingLines
             let data: [String: Any] = ["notificationPermission": permission, "audioStarts": starts,
                                        "logLinesSeen": total, "interestingLines": interesting]
             let ok = Results.record("notification-sound", data)

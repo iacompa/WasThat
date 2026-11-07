@@ -82,15 +82,24 @@ tail -2 "$R"
 ```
 Each run appends one JSON line.
 
-**Notification test (`notification-sound`).** Look in `interestingLines` for:
-- `Presenting … as banner (["sound", …])`, which means the app asked for a sound.
-- Then either `Not playing sound for … isMuted: true` plus a reason (`muted by display state (displayShared)` = screen shared or mirrored; `muted by DND suppression` = Focus), **or** no such line.
+**Notification test (`notification-sound`).** The spike stores fixed facts in `interestingLines`. It does not store original log payloads.
 
-If there is no "Not playing" line and `audioStarts` is non-empty, **that is the never-yet-seen "sound actually played" case.** Copy the exact log lines and the process in `audioStarts` (probably `NotificationCenter`) into the report. That closes PLAN §10 row 1. If it's still muted, note the reason. Ending Focus or screen sharing is the owner's call, so don't do it yourself.
+- `spike presentation: style=banner, soundRequested=true` means the synthetic spike notification requested sound.
+- `spike playback: decision=notPlaying, isMuted=true` identifies an observed suppression decision for the spike.
+- A spike suppression fact can identify `displayShared` or `DND`. These correspond to screen sharing or mirroring, and Focus.
+- Facts labeled `suppression context` lack direct spike attribution. Record them as context, not proof of the spike's suppression reason.
+
+An absent suppression fact does not prove playback. The log collection or parser can miss an event.
+The `audioStarts` list includes unrelated processes. A nonempty list alone does not prove notification playback.
+Require the spike's presentation chain and attributed notification output or owner confirmation before closing PLAN §10 row 1.
+Record an explicit `spike playback: decision=playing` fact when available.
+Otherwise report the result as inconclusive and preserve the pending positive case.
+Copy only fixed facts and relevant process names into the report. Never copy original personal log payloads.
+The owner decides whether to end Focus or screen sharing.
 
 **Mute test (`mute-tap`).** Every `create…`/`destroy…` status should be `noErr`.
-- `tapCapturedAudio: false` / `tapCapturedPeakC: 0` → the permission is still off (M0 baseline). Stop and ask the owner to switch it on (see the owner actions table), then rerun.
-- `tapCapturedAudio: true` → the permission works. Rerun **while the owner listens**:
+- `tapCapturedAudio: false` / `tapCapturedPeakC: 0` means no samples reached the phase C callback. First check tap, aggregate, IOProc, device-start statuses, and source playback. Zero samples alone do not identify the cause. The M0 baseline had denied permission. Ask the owner to check that permission when the other checks pass, then rerun.
+- `tapCapturedAudio: true` proves nonzero samples reached phase C. It does not prove that phase B muted the source. Rerun **while the owner listens**:
 
 | Phase | Time | Label | Expected |
 |---|---|---|---|
