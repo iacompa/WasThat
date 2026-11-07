@@ -7,6 +7,7 @@ nonisolated final class EventStore {
     enum StoreError: Error {
         case open(String)
         case sql(String)
+        case invalidLimit
     }
 
     private var db: OpaquePointer?
@@ -15,28 +16,57 @@ nonisolated final class EventStore {
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         let flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX
         guard sqlite3_open_v2(url.path, &db, flags, nil) == SQLITE_OK else {
-            throw StoreError.open(Self.message(db))
+            let message = Self.message(db)
+            sqlite3_close_v2(db)
+            db = nil
+            throw StoreError.open(message)
         }
         sqlite3_busy_timeout(db, 2_000)
-        try exec("""
-            PRAGMA journal_mode = WAL;
-            CREATE TABLE IF NOT EXISTS events (
-                id        INTEGER PRIMARY KEY AUTOINCREMENT,
-                time      REAL    NOT NULL,
-                kind      TEXT    NOT NULL,
-                pid       INTEGER NOT NULL DEFAULT 0,
-                bundle_id TEXT    NOT NULL DEFAULT '',
-                process   TEXT    NOT NULL DEFAULT '',
-                detail    TEXT    NOT NULL DEFAULT ''
-            );
-            CREATE INDEX IF NOT EXISTS events_time ON events(time);
-            """)
+        do {
+            try exec("PRAGMA journal_mode = WAL")
+            try exec("BEGIN IMMEDIATE")
+            do {
+                try exec("""
+                    CREATE TABLE IF NOT EXISTS events (
+                        id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                        time      REAL    NOT NULL,
+                        kind      TEXT    NOT NULL,
+                        pid       INTEGER NOT NULL DEFAULT 0,
+                        bundle_id TEXT    NOT NULL DEFAULT '',
+                        process   TEXT    NOT NULL DEFAULT '',
+                        detail    TEXT    NOT NULL DEFAULT ''
+                    );
+                    CREATE INDEX IF NOT EXISTS events_time ON events(time);
+                    """)
+                var hasSourceKey = false
+                try withStatement("PRAGMA table_info(events)") { stmt in
+                    var result = sqlite3_step(stmt)
+                    while result == SQLITE_ROW {
+                        if Self.text(stmt, 1) == "source_key" { hasSourceKey = true }
+                        result = sqlite3_step(stmt)
+                    }
+                    guard result == SQLITE_DONE else { throw StoreError.sql(Self.message(db)) }
+                }
+                if !hasSourceKey { try exec("ALTER TABLE events ADD COLUMN source_key TEXT") }
+                try exec("CREATE UNIQUE INDEX IF NOT EXISTS events_source_key ON events(source_key) WHERE source_key IS NOT NULL")
+                try exec("COMMIT")
+            } catch {
+                try? exec("ROLLBACK")
+                throw error
+            }
+        } catch {
+            sqlite3_close_v2(db)
+            db = nil
+            throw error
+        }
     }
 
     deinit { sqlite3_close_v2(db) }
 
-    func insert(_ e: SoundEvent) throws {
-        let sql = "INSERT INTO events (time, kind, pid, bundle_id, process, detail) VALUES (?, ?, ?, ?, ?, ?)"
+    @discardableResult
+    func insert(_ e: SoundEvent) throws -> Bool {
+        let sql = "INSERT INTO events (time, kind, pid, bundle_id, process, detail, source_key) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(source_key) WHERE source_key IS NOT NULL DO NOTHING"
+        var inserted = false
         try withStatement(sql) { stmt in
             sqlite3_bind_double(stmt, 1, e.time.timeIntervalSince1970)
             sqlite3_bind_text(stmt, 2, e.kind.rawValue, -1, Self.transient)
@@ -44,18 +74,24 @@ nonisolated final class EventStore {
             sqlite3_bind_text(stmt, 4, e.bundleID, -1, Self.transient)
             sqlite3_bind_text(stmt, 5, e.processName, -1, Self.transient)
             sqlite3_bind_text(stmt, 6, e.detail, -1, Self.transient)
+            if let key = e.sourceKey { sqlite3_bind_text(stmt, 7, key, -1, Self.transient) }
+            else { sqlite3_bind_null(stmt, 7) }
             guard sqlite3_step(stmt) == SQLITE_DONE else { throw StoreError.sql(Self.message(db)) }
+            inserted = sqlite3_changes(db) > 0
         }
+        return inserted
     }
 
     /// Newest first.
     func events(since: Date, limit: Int = 500) throws -> [SoundEvent] {
+        guard limit > 0, limit <= 10_000 else { throw StoreError.invalidLimit }
         var out: [SoundEvent] = []
-        let sql = "SELECT id, time, kind, pid, bundle_id, process, detail FROM events WHERE time >= ? ORDER BY time DESC LIMIT ?"
+        let sql = "SELECT id, time, kind, pid, bundle_id, process, detail, source_key FROM events WHERE time >= ? ORDER BY time DESC, id DESC LIMIT ?"
         try withStatement(sql) { stmt in
             sqlite3_bind_double(stmt, 1, since.timeIntervalSince1970)
             sqlite3_bind_int(stmt, 2, Int32(limit))
-            while sqlite3_step(stmt) == SQLITE_ROW {
+            var result = sqlite3_step(stmt)
+            while result == SQLITE_ROW {
                 out.append(SoundEvent(
                     id: sqlite3_column_int64(stmt, 0),
                     time: Date(timeIntervalSince1970: sqlite3_column_double(stmt, 1)),
@@ -63,8 +99,11 @@ nonisolated final class EventStore {
                     pid: sqlite3_column_int(stmt, 3),
                     bundleID: Self.text(stmt, 4),
                     processName: Self.text(stmt, 5),
-                    detail: Self.text(stmt, 6)))
+                    detail: Self.text(stmt, 6),
+                    sourceKey: sqlite3_column_type(stmt, 7) == SQLITE_NULL ? nil : Self.text(stmt, 7)))
+                result = sqlite3_step(stmt)
             }
+            guard result == SQLITE_DONE else { throw StoreError.sql(Self.message(db)) }
         }
         return out
     }

@@ -25,9 +25,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>LSUIElement</key>
-	<true/>
-	<key>NSAudioCaptureUsageDescription</key>
-	<string>WasThat mutes only the app you pick, and only for as long as you choose.</string>
+	<false/>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 IA COMPA LLC. Free software under the GPL-3.0.</string>
 </dict>

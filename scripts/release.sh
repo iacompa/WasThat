@@ -18,7 +18,9 @@ cd "$ROOT"
 TEAM_ID="L98358T6WZ"
 SIGN_ID="Developer ID Application: IA COMPA LLC ($TEAM_ID)"
 PROFILE="${NOTARY_PROFILE:-WasThat-notary}"
-OUT="$ROOT/build/release"
+PUBLIC_VERSION="$(sed -n 's/^[[:space:]]*MARKETING_VERSION:[[:space:]]*"\([^"*]*\)"/\1/p' project.yml | head -1)"
+[[ "$PUBLIC_VERSION" =~ ^[1-9][0-9]*(\.[1-9])?$ ]] || { echo "Invalid public app version" >&2; exit 1; }
+OUT="${RELEASE_OUTPUT_DIR:-$ROOT/build/releases/$PUBLIC_VERSION/$(date -u +%Y%m%dT%H%M%SZ)}"
 ARCHIVE="$OUT/WasThat.xcarchive"
 EXPORT="$OUT/export"
 APP="$EXPORT/WasThat.app"
@@ -36,7 +38,8 @@ if [[ $SKIP_NOTARIZE -eq 0 ]]; then
 fi
 
 step "Generating project and archiving (Release, arm64 + x86_64)"
-rm -rf "$OUT" && mkdir -p "$OUT"
+[[ ! -e "$OUT" ]] || fail "Output already exists; choose a new RELEASE_OUTPUT_DIR to preserve prior evidence"
+mkdir -p "$OUT"
 xcodegen generate --quiet
 xcodebuild -project WasThat.xcodeproj -scheme WasThat -configuration Release \
   -destination 'generic/platform=macOS' -archivePath "$ARCHIVE" archive \
@@ -74,8 +77,8 @@ for b in "$APP" "$AGENT"; do
   echo "ok: $(basename "$b")"
 done
 VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Contents/Info.plist")"
-BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Contents/Info.plist")"
-echo "version $VERSION ($BUILD) · archs: $(lipo -archs "$APP/Contents/MacOS/WasThat") · size: $(du -sh "$APP" | cut -f1)"
+[[ "$VERSION" == "$PUBLIC_VERSION" ]] || fail "Archived version differs from the requested public version"
+echo "version $VERSION · archs: $(lipo -archs "$APP/Contents/MacOS/WasThat") · size: $(du -sh "$APP" | cut -f1)"
 
 if [[ $SKIP_NOTARIZE -eq 1 ]]; then
   step "Dry run complete (notarization skipped)"; echo "$APP"; exit 0

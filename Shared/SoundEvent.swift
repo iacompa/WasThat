@@ -4,6 +4,7 @@ import Foundation
 nonisolated struct SoundEvent: Identifiable, Hashable, Sendable {
     enum Kind: String, Sendable {
         case audioStart = "audio_start"
+        case audioActive = "audio_active"
         case audioStop = "audio_stop"
         case notification
         case system
@@ -16,6 +17,7 @@ nonisolated struct SoundEvent: Identifiable, Hashable, Sendable {
     var bundleID: String
     var processName: String
     var detail: String = ""
+    var sourceKey: String? = nil
 }
 
 /// How mysterious a sighting is, shown as a loot tier.
