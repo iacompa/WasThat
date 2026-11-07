@@ -10,8 +10,8 @@ options:
 
 settings:
   base:
-    MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "1.1"
+    CURRENT_PROJECT_VERSION: "2"
     DEVELOPMENT_TEAM: L98358T6WZ
     CODE_SIGN_STYLE: Manual
     CODE_SIGN_IDENTITY: "Developer ID Application"
@@ -37,8 +37,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.utilities
         LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
-        LSUIElement: true
-        NSAudioCaptureUsageDescription: WasThat mutes only the app you pick, and only for as long as you choose.
+        LSUIElement: false
         NSHumanReadableCopyright: © 2026 IA COMPA LLC. Free software under the GPL-3.0.
     settings:
       base:
@@ -67,7 +66,6 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
         LSBackgroundOnly: true
-        NSAudioCaptureUsageDescription: WasThat mutes only the app you pick, and only for as long as you choose.
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.iacompa.wasthat.agent

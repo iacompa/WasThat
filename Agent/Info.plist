@@ -24,7 +24,5 @@
 	<true/>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
-	<key>NSAudioCaptureUsageDescription</key>
-	<string>WasThat mutes only the app you pick, and only for as long as you choose.</string>
 </dict>
 </plist>
